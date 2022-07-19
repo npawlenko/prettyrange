@@ -1,3 +1,12 @@
+// TODO: steps
+/**
+ * PrettyRange
+ * @link https://github.com/npawlenko/prettyrange
+ *
+ * @author https://github.com/npawlenko/
+ * @license MIT
+ * @copyright Copyright 2022 npawlenko
+ */
 var PrettyRange = /** @class */ (function () {
     function PrettyRange(element) {
         this.element = element;
@@ -5,6 +14,7 @@ var PrettyRange = /** @class */ (function () {
         this.activeTrack = element.querySelector(".prettyrange-active-track");
         this.thumb = element.querySelector(".prettyrange-thumb");
         this.hiddenInput = element.querySelector("input[type=hidden]");
+        this.relativePosition = this.relativePosition.bind(this);
         this.translatePosition = this.translatePosition.bind(this);
         this.apply = this.apply.bind(this);
         this.onMove = this.onMove.bind(this);
@@ -15,8 +25,8 @@ var PrettyRange = /** @class */ (function () {
     PrettyRange.prototype.onMove = function (event) {
         var _this = this;
         var onMove = function (e) {
-            //TODO: x value relative to track
-            _this.apply(e.x);
+            var position = _this.relativePosition(e.x);
+            _this.apply(position);
         };
         var endMove = function () {
             window.removeEventListener('mousemove', onMove);
@@ -32,15 +42,19 @@ var PrettyRange = /** @class */ (function () {
             window.addEventListener('mouseup', endMove);
         });
     };
-    /* */
+    /* Functions */
     /**
-     *
+     * Updates input track and moves thumb to given position
      * @param position
+     * @return void
      */
     PrettyRange.prototype.apply = function (position) {
-        var val = "".concat(position, "px");
+        // invalid position
+        if (position <= 0 || position >= this.track.offsetWidth)
+            return;
         this.value = this.translatePosition(position);
         // Move thumb and update active track
+        var val = "".concat(position, "px");
         this.thumb.style.left = val;
         this.activeTrack.style.width = val;
     };
@@ -55,6 +69,15 @@ var PrettyRange = /** @class */ (function () {
         var percentage = position / width;
         value = Math.round(this.max * percentage);
         return value;
+    };
+    /**
+     * Returns position relative to the track
+     * @param position
+     * @return number
+     */
+    PrettyRange.prototype.relativePosition = function (position) {
+        var rect = this.track.getBoundingClientRect();
+        return position - rect.left;
     };
     Object.defineProperty(PrettyRange.prototype, "min", {
         get: function () {

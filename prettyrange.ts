@@ -1,3 +1,13 @@
+// TODO: steps
+
+/**
+ * PrettyRange
+ * @link https://github.com/npawlenko/prettyrange
+ *
+ * @author https://github.com/npawlenko/
+ * @license MIT
+ * @copyright Copyright 2022 npawlenko
+ */
 class PrettyRange {
     element: HTMLElement;
     track: HTMLElement;
@@ -13,6 +23,7 @@ class PrettyRange {
         this.thumb = element.querySelector(".prettyrange-thumb");
         this.hiddenInput = element.querySelector("input[type=hidden]");
 
+        this.relativePosition = this.relativePosition.bind(this);
         this.translatePosition = this.translatePosition.bind(this);
         this.apply = this.apply.bind(this);
         this.onMove = this.onMove.bind(this);
@@ -25,9 +36,9 @@ class PrettyRange {
     /* Events */
 
     onMove(event: MouseEvent) {
-        const onMove = (e) => {
-            //TODO: x value relative to track
-            this.apply(e.x);
+        const onMove = (e: MouseEvent) => {
+            const position =  this.relativePosition(e.x);
+            this.apply(position);
         }
 
         const endMove = () => {
@@ -49,18 +60,22 @@ class PrettyRange {
     }
 
 
-    /* */
+    /* Functions */
 
     /**
-     *
+     * Updates input track and moves thumb to given position
      * @param position
+     * @return void
      */
     apply(position: number) {
-        const val = `${position}px`;
+        // invalid position
+        if(position <= 0 || position >= this.track.offsetWidth) return;
+
 
         this.value = this.translatePosition(position);
 
         // Move thumb and update active track
+        const val = `${position}px`;
         this.thumb.style.left = val;
         this.activeTrack.style.width = val;
     }
@@ -80,8 +95,19 @@ class PrettyRange {
         return value;
     }
 
+    /**
+     * Returns position relative to the track
+     * @param position
+     * @return number
+     */
+    relativePosition(position: number) {
+        const rect = this.track.getBoundingClientRect();
+        return position - rect.left;
+    }
+
 
     /* Getters and setters */
+
     set min(min: number) {
         this.element.dataset.min = min as unknown as string;
     }
