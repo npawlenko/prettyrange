@@ -1,6 +1,7 @@
 
 .prettyrange {
     position: relative;
+    user-select: none;
 }
 
 .prettyrange-track {
@@ -23,7 +24,7 @@
     position: absolute;
     left: 100px;
     top: 50%;
-    transform: translateY(-50%);
+    transform: translateX(-15px) translateY(-50%);
     cursor: pointer;
     width:20px;
     height:20px;
