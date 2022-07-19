@@ -1,5 +1,3 @@
-// TODO: steps
-
 /**
  * PrettyRange
  * @link https://github.com/npawlenko/prettyrange
@@ -14,19 +12,49 @@ class PrettyRange {
     activeTrack: HTMLElement;
     thumb: HTMLElement;
     hiddenInput: HTMLInputElement;
+    steps: Array<number>;
+    stepBlocking: boolean;
+
 
     constructor(element: HTMLElement) {
         this.element = element;
 
-        this.track = element.querySelector(".prettyrange-track");
-        this.activeTrack = element.querySelector(".prettyrange-active-track");
-        this.thumb = element.querySelector(".prettyrange-thumb");
-        this.hiddenInput = element.querySelector("input[type=hidden]");
-
+        this.init = this.init.bind(this);
         this.relativePosition = this.relativePosition.bind(this);
         this.translatePosition = this.translatePosition.bind(this);
+        this.translateStep = this.translateStep.bind(this);
         this.apply = this.apply.bind(this);
         this.onMove = this.onMove.bind(this);
+
+        this.init();
+    }
+
+    init() {
+        // Steps
+        const stepsData = this.element.dataset.steps;
+        if(stepsData !== undefined) {
+            const steps = JSON.parse(stepsData);
+            if(steps === null) throw new Error("Could not parse given steps JSON");
+            if(!Array.isArray(steps)) throw new Error("Given steps should be an array");
+            if(steps.length < 2) throw new Error("Please provide at least 2 steps");
+
+            this.steps = steps;
+        }
+        this.stepBlocking = this.element.dataset.stepBlocking === "true";
+
+        // if steps disabled
+        if(this.steps === undefined) {
+            // check other parameters
+            if(this.min === undefined || this.max === undefined) throw new Error("Please specify min and max values");
+            if(this.min == this.max) throw new Error("Min and max values should be different");
+            if(this.min > this.max) throw new Error("Min value should be greater than max");
+        }
+
+        // Class
+        this.track = this.element.querySelector(".prettyrange-track");
+        this.activeTrack = this.element.querySelector(".prettyrange-active-track");
+        this.thumb = this.element.querySelector(".prettyrange-thumb");
+        this.hiddenInput = this.element.querySelector("input[type=hidden]");
 
         this.track.addEventListener('mousedown', this.onMove);
         this.thumb.addEventListener('mousedown', this.onMove);
@@ -71,13 +99,38 @@ class PrettyRange {
         // invalid position
         if(position <= 0 || position >= this.track.offsetWidth) return;
 
+        const value = this.translatePosition(position);
 
-        this.value = this.translatePosition(position);
+        if(Array.isArray(this.steps)) {
+            // steps enabled
+            const steps = this.steps;
+            steps.sort((a, b) => {
+                return Math.abs(value - a) - Math.abs(value - b);
+            });
+            const closestStep = steps[0];
 
-        // Move thumb and update active track
-        const val = `${position}px`;
-        this.thumb.style.left = val;
-        this.activeTrack.style.width = val;
+
+
+            let val: string;
+            if(!this.stepBlocking) val = `${position}px`;
+            else val = `${this.translateStep(closestStep)}px`;
+
+            // Move thumb and update active track
+            this.thumb.style.left = val;
+            this.activeTrack.style.width = val;
+
+            // Update value
+            this.value = closestStep;
+        }
+        else {
+            // Move thumb and update active track
+            const val = `${position}px`;
+            this.thumb.style.left = val;
+            this.activeTrack.style.width = val;
+
+            // Update value
+            this.value = this.translatePosition(position);
+        }
     }
 
     /**
@@ -89,9 +142,23 @@ class PrettyRange {
         let value: number;
 
         const width = this.track.offsetWidth;
-        const percentage = position/width;
-        console.log(this.max * percentage);
+        const percentage = position / width;
         value = Math.ceil(this.max * percentage);
+
+        return value;
+    }
+
+    /**
+     * Translates step into thumb position
+     * @param step
+     * @return number
+     */
+    translateStep(step: number) {
+        let value: number;
+
+        const width = this.track.offsetWidth;
+        const percentage = step / Math.max.apply(null, this.steps);
+        value = width * percentage;
 
         return value;
     }
@@ -108,7 +175,6 @@ class PrettyRange {
 
 
     /* Getters and setters */
-
     set min(min: number) {
         this.element.dataset.min = min as unknown as string;
     }
