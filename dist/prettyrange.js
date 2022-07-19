@@ -36,7 +36,7 @@ var PrettyRange = /** @class */ (function () {
             // check other parameters
             if (this.min === undefined || this.max === undefined)
                 throw new Error("Please specify min and max values");
-            if (this.min == this.max)
+            if (this.min === this.max)
                 throw new Error("Min and max values should be different");
             if (this.min > this.max)
                 throw new Error("Min value should be greater than max");
