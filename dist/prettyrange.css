@@ -11,7 +11,7 @@
 }
 
 .prettyrange-active-track {
-    width: 100px;
+    width: 0px;
     background: #6ab3d0;
 }
 
@@ -22,7 +22,7 @@
 .prettyrange-thumb {
     background: #2f2f2f;
     position: absolute;
-    left: 100px;
+    left: 0px;
     top: 50%;
     transform: translateX(-15px) translateY(-50%);
     cursor: pointer;

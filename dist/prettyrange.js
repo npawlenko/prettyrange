@@ -1,4 +1,3 @@
-// TODO: steps
 /**
  * PrettyRange
  * @link https://github.com/npawlenko/prettyrange
@@ -10,17 +9,46 @@
 var PrettyRange = /** @class */ (function () {
     function PrettyRange(element) {
         this.element = element;
-        this.track = element.querySelector(".prettyrange-track");
-        this.activeTrack = element.querySelector(".prettyrange-active-track");
-        this.thumb = element.querySelector(".prettyrange-thumb");
-        this.hiddenInput = element.querySelector("input[type=hidden]");
+        this.init = this.init.bind(this);
         this.relativePosition = this.relativePosition.bind(this);
         this.translatePosition = this.translatePosition.bind(this);
+        this.translateStep = this.translateStep.bind(this);
         this.apply = this.apply.bind(this);
         this.onMove = this.onMove.bind(this);
+        this.init();
+    }
+    PrettyRange.prototype.init = function () {
+        // Steps
+        var stepsData = this.element.dataset.steps;
+        if (stepsData !== undefined) {
+            var steps = JSON.parse(stepsData);
+            if (steps === null)
+                throw new Error("Could not parse given steps JSON");
+            if (!Array.isArray(steps))
+                throw new Error("Given steps should be an array");
+            if (steps.length < 2)
+                throw new Error("Please provide at least 2 steps");
+            this.steps = steps;
+        }
+        this.stepBlocking = this.element.dataset.stepBlocking === "true";
+        // if steps disabled
+        if (this.steps === undefined) {
+            // check other parameters
+            if (this.min === undefined || this.max === undefined)
+                throw new Error("Please specify min and max values");
+            if (this.min == this.max)
+                throw new Error("Min and max values should be different");
+            if (this.min > this.max)
+                throw new Error("Min value should be greater than max");
+        }
+        // Class
+        this.track = this.element.querySelector(".prettyrange-track");
+        this.activeTrack = this.element.querySelector(".prettyrange-active-track");
+        this.thumb = this.element.querySelector(".prettyrange-thumb");
+        this.hiddenInput = this.element.querySelector("input[type=hidden]");
         this.track.addEventListener('mousedown', this.onMove);
         this.thumb.addEventListener('mousedown', this.onMove);
-    }
+    };
     /* Events */
     PrettyRange.prototype.onMove = function (event) {
         var _this = this;
@@ -52,11 +80,33 @@ var PrettyRange = /** @class */ (function () {
         // invalid position
         if (position <= 0 || position >= this.track.offsetWidth)
             return;
-        this.value = this.translatePosition(position);
-        // Move thumb and update active track
-        var val = "".concat(position, "px");
-        this.thumb.style.left = val;
-        this.activeTrack.style.width = val;
+        var value = this.translatePosition(position);
+        if (Array.isArray(this.steps)) {
+            // steps enabled
+            var steps = this.steps;
+            steps.sort(function (a, b) {
+                return Math.abs(value - a) - Math.abs(value - b);
+            });
+            var closestStep = steps[0];
+            var val = void 0;
+            if (!this.stepBlocking)
+                val = "".concat(position, "px");
+            else
+                val = "".concat(this.translateStep(closestStep), "px");
+            // Move thumb and update active track
+            this.thumb.style.left = val;
+            this.activeTrack.style.width = val;
+            // Update value
+            this.value = closestStep;
+        }
+        else {
+            // Move thumb and update active track
+            var val = "".concat(position, "px");
+            this.thumb.style.left = val;
+            this.activeTrack.style.width = val;
+            // Update value
+            this.value = this.translatePosition(position);
+        }
     };
     /**
      * Translates position into input value
@@ -67,8 +117,19 @@ var PrettyRange = /** @class */ (function () {
         var value;
         var width = this.track.offsetWidth;
         var percentage = position / width;
-        console.log(this.max * percentage);
         value = Math.ceil(this.max * percentage);
+        return value;
+    };
+    /**
+     * Translates step into thumb position
+     * @param step
+     * @return number
+     */
+    PrettyRange.prototype.translateStep = function (step) {
+        var value;
+        var width = this.track.offsetWidth;
+        var percentage = step / Math.max.apply(null, this.steps);
+        value = width * percentage;
         return value;
     };
     /**
