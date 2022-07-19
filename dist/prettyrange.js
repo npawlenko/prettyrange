@@ -80,12 +80,12 @@ var PrettyRange = /** @class */ (function () {
         // invalid position
         if (position <= 0 || position >= this.track.offsetWidth)
             return;
-        var value = this.translatePosition(position);
         if (Array.isArray(this.steps)) {
+            var value_1 = this.translatePosition(position);
             // steps enabled
             var steps = this.steps;
             steps.sort(function (a, b) {
-                return Math.abs(value - a) - Math.abs(value - b);
+                return Math.abs(value_1 - a) - Math.abs(value_1 - b);
             });
             var closestStep = steps[0];
             var val = void 0;
@@ -117,7 +117,12 @@ var PrettyRange = /** @class */ (function () {
         var value;
         var width = this.track.offsetWidth;
         var percentage = position / width;
-        value = Math.ceil(this.max * percentage);
+        if (!isNaN(this.max))
+            value = Math.ceil(this.max * percentage); // standard
+        else { // steps
+            var max = Math.max.apply(null, this.steps);
+            value = Math.ceil(max * percentage);
+        }
         return value;
     };
     /**

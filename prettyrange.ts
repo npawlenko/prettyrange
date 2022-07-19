@@ -99,11 +99,12 @@ class PrettyRange {
         // invalid position
         if(position <= 0 || position >= this.track.offsetWidth) return;
 
-        const value = this.translatePosition(position);
 
         if(Array.isArray(this.steps)) {
+            const value = this.translatePosition(position);
+
             // steps enabled
-            const steps = this.steps;
+            let steps = this.steps;
             steps.sort((a, b) => {
                 return Math.abs(value - a) - Math.abs(value - b);
             });
@@ -143,7 +144,12 @@ class PrettyRange {
 
         const width = this.track.offsetWidth;
         const percentage = position / width;
-        value = Math.ceil(this.max * percentage);
+
+        if(!isNaN(this.max)) value = Math.ceil(this.max * percentage); // standard
+        else { // steps
+            const max = Math.max.apply(null, this.steps);
+            value = Math.ceil(max * percentage);
+        }
 
         return value;
     }
