@@ -113,3 +113,4 @@ var PrettyRange = /** @class */ (function () {
     });
     return PrettyRange;
 }());
+//# sourceMappingURL=prettyrange.js.map
