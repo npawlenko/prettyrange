@@ -1,0 +1,31 @@
+
+.prettyrange {
+    position: relative;
+}
+
+.prettyrange-track {
+    background: #cecece;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.prettyrange-active-track {
+    width: 100px;
+    background: #6ab3d0;
+}
+
+.prettyrange-track, .prettyrange-active-track {
+    height: 10px;
+}
+
+.prettyrange-thumb {
+    background: #2f2f2f;
+    position: absolute;
+    left: 100px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    width:20px;
+    height:20px;
+    border-radius: 10px;
+}
