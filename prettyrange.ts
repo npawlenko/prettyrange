@@ -1,6 +1,7 @@
 class PrettyRange {
     element: HTMLElement;
     track: HTMLElement;
+    activeTrack: HTMLElement;
     thumb: HTMLElement;
     hiddenInput: HTMLInputElement;
 
@@ -8,12 +9,76 @@ class PrettyRange {
         this.element = element;
 
         this.track = element.querySelector(".prettyrange-track");
+        this.activeTrack = element.querySelector(".prettyrange-active-track");
         this.thumb = element.querySelector(".prettyrange-thumb");
         this.hiddenInput = element.querySelector("input[type=hidden]");
+
+        this.translatePosition = this.translatePosition.bind(this);
+        this.apply = this.apply.bind(this);
+        this.onMove = this.onMove.bind(this);
+
+        this.track.addEventListener('mousedown', this.onMove);
+        this.thumb.addEventListener('mousedown', this.onMove);
+    }
+
+
+    /* Events */
+
+    onMove(event: MouseEvent) {
+        const onMove = (e) => {
+            //TODO: x value relative to track
+            this.apply(e.x);
+        }
+
+        const endMove = () => {
+            window.removeEventListener('mousemove', onMove)
+            window.removeEventListener('mouseup', endMove);
+        }
+
+        // clicked
+        const target = <Element> event.target;
+
+        event.target.addEventListener('mousedown', (e: MouseEvent) => {
+            if(target.classList.contains('prettyrange-track')) {
+                this.apply(e.x);
+            }
+
+            window.addEventListener('mousemove', onMove)
+            window.addEventListener('mouseup', endMove)
+        })
     }
 
 
     /* */
+
+    /**
+     *
+     * @param position
+     */
+    apply(position: number) {
+        const val = `${position}px`;
+
+        this.value = this.translatePosition(position);
+
+        // Move thumb and update active track
+        this.thumb.style.left = val;
+        this.activeTrack.style.width = val;
+    }
+
+    /**
+     * Translates position into input value
+     * @param position
+     * @return number
+     */
+    translatePosition(position: number) {
+        let value: number;
+
+        const width = this.track.offsetWidth;
+        const percentage = position/width;
+        value = Math.round(this.max * percentage);
+
+        return value;
+    }
 
 
     /* Getters and setters */
