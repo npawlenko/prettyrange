@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <link rel="stylesheet" href="prettyrange.css">
+</head>
+<body>
+    <div class="prettyrange" id="myinput" data-min="1" data-max="100" data-value="1">
+        <div class="track">
+            <div class="thumb"></div>
+        </div>
+
+        <input type="hidden" value="1">
+    </div>
+
+    <script src="prettyrange.js"></script>
+    <script>
+        const element = document.getElementById("myinput");
+        const range = new PrettyRange(element);
+    </script>
+</body>
+</html>
