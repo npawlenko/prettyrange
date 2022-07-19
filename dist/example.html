@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="prettyrange.css">
 </head>
 <body>
-    <div class="prettyrange" id="myinput" data-min="1" data-max="100" data-value="1" data-steps="[1,5,50,100]" data-step-blocking="true">
+    <h1>Standard input</h1>
+    <div class="prettyrange" id="standard" data-min="1" data-max="100" data-value="1">
         <div class="prettyrange-track">
             <div class="prettyrange-active-track"></div>
         </div>
@@ -17,10 +18,34 @@
         <input type="hidden" value="1">
     </div>
 
+    <h1>Input with steps</h1>
+    <div class="prettyrange" id="steps" data-steps="[1,5,10,15,20,25,50,75,80,85,90,95,100]">
+        <div class="prettyrange-track">
+            <div class="prettyrange-active-track"></div>
+        </div>
+
+        <div class="prettyrange-thumb"></div>
+
+        <input type="hidden">
+    </div>
+
+    <h1>Input with step blocking</h1>
+    <div class="prettyrange" id="steps-blocking" data-steps="[1,5,10,15,20,25,50,75,80,85,90,95,100]" data-step-blocking="true">
+        <div class="prettyrange-track">
+            <div class="prettyrange-active-track"></div>
+        </div>
+
+        <div class="prettyrange-thumb"></div>
+
+        <input type="hidden">
+    </div>
+
     <script src="prettyrange.js"></script>
     <script>
-        const element = document.getElementById("myinput");
-        const range = new PrettyRange(element);
+        const elements = document.getElementsByClassName("prettyrange");
+        for (let i=0; i < elements.length; i++) {
+            new PrettyRange(elements[i]);
+        }
     </script>
 </body>
 </html>
