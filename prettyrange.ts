@@ -90,7 +90,8 @@ class PrettyRange {
 
         const width = this.track.offsetWidth;
         const percentage = position/width;
-        value = Math.round(this.max * percentage);
+        console.log(this.max * percentage);
+        value = Math.ceil(this.max * percentage);
 
         return value;
     }

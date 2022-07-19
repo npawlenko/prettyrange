@@ -67,7 +67,8 @@ var PrettyRange = /** @class */ (function () {
         var value;
         var width = this.track.offsetWidth;
         var percentage = position / width;
-        value = Math.round(this.max * percentage);
+        console.log(this.max * percentage);
+        value = Math.ceil(this.max * percentage);
         return value;
     };
     /**
