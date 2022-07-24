@@ -83,7 +83,8 @@ class PrettyRange {
 
         event.target.addEventListener('mousedown', (e: MouseEvent) => {
             if(target.classList.contains('prettyrange-track')) {
-                this.apply(e.x);
+                const position =  this.relativePosition(e.x);
+                this.apply(position);
             }
 
             window.addEventListener('mousemove', onMove)
