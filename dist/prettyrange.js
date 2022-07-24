@@ -66,7 +66,8 @@ var PrettyRange = /** @class */ (function () {
         var target = event.target;
         event.target.addEventListener('mousedown', function (e) {
             if (target.classList.contains('prettyrange-track')) {
-                _this.apply(e.x);
+                var position = _this.relativePosition(e.x);
+                _this.apply(position);
             }
             window.addEventListener('mousemove', onMove);
             window.addEventListener('mouseup', endMove);
