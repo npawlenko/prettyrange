@@ -6,6 +6,7 @@
  * @license MIT
  * @copyright Copyright 2022 npawlenko
  */
+
 class PrettyRange {
     element: HTMLElement;
     track: HTMLElement;
@@ -58,6 +59,9 @@ class PrettyRange {
 
         this.track.addEventListener('mousedown', this.onMove);
         this.thumb.addEventListener('mousedown', this.onMove);
+
+        // Apply default value
+        this.apply(0);
     }
 
 
@@ -97,7 +101,8 @@ class PrettyRange {
      */
     apply(position: number) {
         // invalid position
-        if(position <= 0 || position >= this.track.offsetWidth) return;
+        if(position < 0 || position > this.track.offsetWidth) return;
+        if(position == 0) position = 1;
 
 
         if(Array.isArray(this.steps)) {
@@ -132,6 +137,9 @@ class PrettyRange {
             // Update value
             this.value = this.translatePosition(position);
         }
+
+        const event = new Event('change');
+        this.hiddenInput.dispatchEvent(event);
     }
 
     /**
@@ -143,7 +151,7 @@ class PrettyRange {
         let value: number;
 
         const width = this.track.offsetWidth;
-        const percentage = position / width;
+        let percentage = position / width;
 
         if(!isNaN(this.max)) value = Math.ceil(this.max * percentage); // standard
         else { // steps

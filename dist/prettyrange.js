@@ -48,6 +48,8 @@ var PrettyRange = /** @class */ (function () {
         this.hiddenInput = this.element.querySelector("input[type=hidden]");
         this.track.addEventListener('mousedown', this.onMove);
         this.thumb.addEventListener('mousedown', this.onMove);
+        // Apply default value
+        this.apply(0);
     };
     /* Events */
     PrettyRange.prototype.onMove = function (event) {
@@ -78,8 +80,10 @@ var PrettyRange = /** @class */ (function () {
      */
     PrettyRange.prototype.apply = function (position) {
         // invalid position
-        if (position <= 0 || position >= this.track.offsetWidth)
+        if (position < 0 || position > this.track.offsetWidth)
             return;
+        if (position == 0)
+            position = 1;
         if (Array.isArray(this.steps)) {
             var value_1 = this.translatePosition(position);
             // steps enabled
@@ -107,6 +111,8 @@ var PrettyRange = /** @class */ (function () {
             // Update value
             this.value = this.translatePosition(position);
         }
+        var event = new Event('change');
+        this.hiddenInput.dispatchEvent(event);
     };
     /**
      * Translates position into input value
