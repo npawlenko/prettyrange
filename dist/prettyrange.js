@@ -18,7 +18,6 @@ var PrettyRange = /** @class */ (function () {
         this.init();
     }
     PrettyRange.prototype.init = function () {
-        // Steps
         var stepsData = this.element.dataset.steps;
         if (stepsData !== undefined) {
             var steps = JSON.parse(stepsData);
@@ -31,9 +30,7 @@ var PrettyRange = /** @class */ (function () {
             this.steps = steps;
         }
         this.stepBlocking = this.element.dataset.stepBlocking === "true";
-        // if steps disabled
         if (this.steps === undefined) {
-            // check other parameters
             if (this.min === undefined || this.max === undefined)
                 throw new Error("Please specify min and max values");
             if (this.min === this.max)
@@ -41,7 +38,6 @@ var PrettyRange = /** @class */ (function () {
             if (this.min > this.max)
                 throw new Error("Min value should be greater than max");
         }
-        // Class
         this.track = this.element.querySelector(".prettyrange-track");
         this.activeTrack = this.element.querySelector(".prettyrange-active-track");
         this.thumb = this.element.querySelector(".prettyrange-thumb");
@@ -56,7 +52,6 @@ var PrettyRange = /** @class */ (function () {
     /* Events */
     PrettyRange.prototype.onMove = function (event) {
         var _this = this;
-        console.log(event);
         var target = event.target;
         var onMove = function (e) {
             var position = _this.relativePosition(PrettyRange.getX(e));
@@ -69,7 +64,6 @@ var PrettyRange = /** @class */ (function () {
             window.removeEventListener('touchend', onMove);
         };
         var start = function (e) {
-            console.log(e, PrettyRange.getX(e));
             if (target.classList.contains('prettyrange-track')) {
                 var position = _this.relativePosition(PrettyRange.getX(e));
                 _this.apply(position);
@@ -96,7 +90,6 @@ var PrettyRange = /** @class */ (function () {
             position = 1;
         if (Array.isArray(this.steps)) {
             var value_1 = this.translatePosition(position);
-            // steps enabled
             var steps = this.steps;
             steps.sort(function (a, b) {
                 return Math.abs(value_1 - a) - Math.abs(value_1 - b);
@@ -110,7 +103,6 @@ var PrettyRange = /** @class */ (function () {
             // Move thumb and update active track
             this.thumb.style.left = val;
             this.activeTrack.style.width = val;
-            // Update value
             this.value = closestStep;
         }
         else {
@@ -118,7 +110,6 @@ var PrettyRange = /** @class */ (function () {
             var val = "".concat(position, "px");
             this.thumb.style.left = val;
             this.activeTrack.style.width = val;
-            // Update value
             this.value = this.translatePosition(position);
         }
         var event = new Event('change');
@@ -148,7 +139,7 @@ var PrettyRange = /** @class */ (function () {
         var percentage = position / width;
         if (!isNaN(this.max))
             value = Math.ceil(this.max * percentage); // standard
-        else { // steps
+        else {
             var max = Math.max.apply(null, this.steps);
             value = Math.ceil(max * percentage);
         }

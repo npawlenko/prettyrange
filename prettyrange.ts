@@ -31,7 +31,6 @@ class PrettyRange {
     }
 
     init() {
-        // Steps
         const stepsData = this.element.dataset.steps;
         if(stepsData !== undefined) {
             const steps = JSON.parse(stepsData);
@@ -43,15 +42,12 @@ class PrettyRange {
         }
         this.stepBlocking = this.element.dataset.stepBlocking === "true";
 
-        // if steps disabled
         if(this.steps === undefined) {
-            // check other parameters
             if(this.min === undefined || this.max === undefined) throw new Error("Please specify min and max values");
             if(this.min === this.max) throw new Error("Min and max values should be different");
             if(this.min > this.max) throw new Error("Min value should be greater than max");
         }
 
-        // Class
         this.track = this.element.querySelector(".prettyrange-track");
         this.activeTrack = this.element.querySelector(".prettyrange-active-track");
         this.thumb = this.element.querySelector(".prettyrange-thumb");
@@ -119,7 +115,6 @@ class PrettyRange {
         if(Array.isArray(this.steps)) {
             const value = this.translatePosition(position);
 
-            // steps enabled
             let steps = this.steps;
             steps.sort((a, b) => {
                 return Math.abs(value - a) - Math.abs(value - b);
@@ -136,7 +131,6 @@ class PrettyRange {
             this.thumb.style.left = val;
             this.activeTrack.style.width = val;
 
-            // Update value
             this.value = closestStep;
         }
         else {
@@ -145,7 +139,6 @@ class PrettyRange {
             this.thumb.style.left = val;
             this.activeTrack.style.width = val;
 
-            // Update value
             this.value = this.translatePosition(position);
         }
 
@@ -178,7 +171,7 @@ class PrettyRange {
         let percentage = position / width;
 
         if(!isNaN(this.max)) value = Math.ceil(this.max * percentage); // standard
-        else { // steps
+        else {
             const max = Math.max.apply(null, this.steps);
             value = Math.ceil(max * percentage);
         }
