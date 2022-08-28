@@ -59,6 +59,8 @@ class PrettyRange {
 
         this.track.addEventListener('mousedown', this.onMove);
         this.thumb.addEventListener('mousedown', this.onMove);
+        this.track.addEventListener('touchstart', this.onMove);
+        this.thumb.addEventListener('touchstart', this.onMove);
 
         // Apply default value
         this.apply(0);
@@ -67,29 +69,37 @@ class PrettyRange {
 
     /* Events */
 
-    onMove(event: MouseEvent) {
-        const onMove = (e: MouseEvent) => {
-            const position =  this.relativePosition(e.x);
+    onMove(event: MouseEvent|TouchEvent) {
+        const target = <Element> event.target;
+
+        const onMove = (e: MouseEvent|TouchEvent) => {
+            const position =  this.relativePosition(PrettyRange.getX(e));
             this.apply(position);
         }
 
         const endMove = () => {
             window.removeEventListener('mousemove', onMove)
+            window.removeEventListener('touchmove', onMove)
             window.removeEventListener('mouseup', endMove);
+            window.removeEventListener('touchend', onMove)
         }
 
-        // clicked
-        const target = <Element> event.target;
-
-        event.target.addEventListener('mousedown', (e: MouseEvent) => {
+        const start = (e: MouseEvent|TouchEvent) => {
             if(target.classList.contains('prettyrange-track')) {
-                const position =  this.relativePosition(e.x);
+                const position =  this.relativePosition(PrettyRange.getX(e));
                 this.apply(position);
             }
 
-            window.addEventListener('mousemove', onMove)
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('touchmove', onMove);
             window.addEventListener('mouseup', endMove)
-        })
+            window.addEventListener('touchend', endMove)
+        };
+
+
+
+        target.addEventListener('mousedown', start);
+        target.addEventListener('touchstart', start);
     }
 
 
@@ -100,7 +110,7 @@ class PrettyRange {
      * @param position
      * @return void
      */
-    apply(position: number) {
+    private apply(position: number) {
         // invalid position
         if(position < 0 || position > this.track.offsetWidth) return;
         if(position == 0) position = 1;
@@ -143,12 +153,25 @@ class PrettyRange {
         this.hiddenInput.dispatchEvent(event);
     }
 
+    static getX(e: MouseEvent|TouchEvent) {
+        let x;
+        if(e instanceof MouseEvent) {
+            x = e.pageX;
+        } else if(e instanceof TouchEvent) {
+            x = e.touches[0].pageX;
+        } else {
+            throw new Error("Invalid event passed");
+        }
+
+        return x;
+    }
+
     /**
      * Translates position into input value
      * @param position
      * @return number
      */
-    translatePosition(position: number) {
+    private translatePosition(position: number) {
         let value: number;
 
         const width = this.track.offsetWidth;
@@ -168,7 +191,7 @@ class PrettyRange {
      * @param step
      * @return number
      */
-    translateStep(step: number) {
+    private translateStep(step: number) {
         let value: number;
 
         const width = this.track.offsetWidth;
@@ -183,7 +206,7 @@ class PrettyRange {
      * @param position
      * @return number
      */
-    relativePosition(position: number) {
+    private relativePosition(position: number) {
         const rect = this.track.getBoundingClientRect();
         return position - rect.left;
     }

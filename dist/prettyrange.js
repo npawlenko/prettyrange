@@ -48,30 +48,39 @@ var PrettyRange = /** @class */ (function () {
         this.hiddenInput = this.element.querySelector("input[type=hidden]");
         this.track.addEventListener('mousedown', this.onMove);
         this.thumb.addEventListener('mousedown', this.onMove);
+        this.track.addEventListener('touchstart', this.onMove);
+        this.thumb.addEventListener('touchstart', this.onMove);
         // Apply default value
         this.apply(0);
     };
     /* Events */
     PrettyRange.prototype.onMove = function (event) {
         var _this = this;
+        console.log(event);
+        var target = event.target;
         var onMove = function (e) {
-            var position = _this.relativePosition(e.x);
+            var position = _this.relativePosition(PrettyRange.getX(e));
             _this.apply(position);
         };
         var endMove = function () {
             window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('touchmove', onMove);
             window.removeEventListener('mouseup', endMove);
+            window.removeEventListener('touchend', onMove);
         };
-        // clicked
-        var target = event.target;
-        event.target.addEventListener('mousedown', function (e) {
+        var start = function (e) {
+            console.log(e, PrettyRange.getX(e));
             if (target.classList.contains('prettyrange-track')) {
-                var position = _this.relativePosition(e.x);
+                var position = _this.relativePosition(PrettyRange.getX(e));
                 _this.apply(position);
             }
             window.addEventListener('mousemove', onMove);
+            window.addEventListener('touchmove', onMove);
             window.addEventListener('mouseup', endMove);
-        });
+            window.addEventListener('touchend', endMove);
+        };
+        target.addEventListener('mousedown', start);
+        target.addEventListener('touchstart', start);
     };
     /* Functions */
     /**
@@ -114,6 +123,19 @@ var PrettyRange = /** @class */ (function () {
         }
         var event = new Event('change');
         this.hiddenInput.dispatchEvent(event);
+    };
+    PrettyRange.getX = function (e) {
+        var x;
+        if (e instanceof MouseEvent) {
+            x = e.pageX;
+        }
+        else if (e instanceof TouchEvent) {
+            x = e.touches[0].pageX;
+        }
+        else {
+            throw new Error("Invalid event passed");
+        }
+        return x;
     };
     /**
      * Translates position into input value
